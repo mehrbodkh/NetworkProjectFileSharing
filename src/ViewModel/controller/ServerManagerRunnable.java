@@ -21,6 +21,7 @@ public class ServerManagerRunnable implements Runnable{
     private int clientPort;
     private String clientId;
     private String[] clientRequest;
+    private String response;
 
     //
     // client variables
@@ -55,6 +56,7 @@ public class ServerManagerRunnable implements Runnable{
             parseRequest();
             determineClientId();
             respondToRequest();
+            closeConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,7 +64,7 @@ public class ServerManagerRunnable implements Runnable{
 
     /**
      * initializes the clientRequest String array
-     * @throws IOException
+     * @throws IOException for DataInputStream
      */
     private void parseRequest() throws IOException {
         if (clientSocket != null) {
@@ -87,6 +89,7 @@ public class ServerManagerRunnable implements Runnable{
      *         REQUESTFILEOWNER for requesting one file owner
      *         REQUESTALLFILES for getting all shared files names list
      *         ADDFILES for adding new files to an already existed client
+     *         REMOVEFILES for removing files
      */
     private String determineRequest() {
         if (clientRequest.length != 0) {
@@ -115,27 +118,58 @@ public class ServerManagerRunnable implements Runnable{
             case "ADDFIELS":
                 addNewFiles();
                 break;
+            case "REMOVEFILES":
+                removeOldFiles();
+                break;
             default:
         }
+        sendResponse();
     }
 
     /**
      * adds current client
      */
     private void addMember() {
+        StringBuilder result = new StringBuilder();
         if (clientStorage.addClient(new Client(clientId, clientIp, clientPort))) {
             System.out.println(clientId + " has been added.");
+            result.append("ADDMEMBERRESPONSE")
+                    .append("\n")
+                    .append(clientId)
+                    .append("\n")
+                    .append(clientId)
+                    .append(" has been added.")
+                    .append("\n");
         } else {
             System.out.println(clientId + " cannot be added. Already exists.");
+            result.append("ADDMEMBERRESPONSE")
+                    .append("\n")
+                    .append(clientId)
+                    .append("\n")
+                    .append(clientId)
+                    .append(" cannot be added. Already exists.")
+                    .append("\n");
         }
+        response = result.toString();
     }
 
     /**
      * removes current client
      */
     private void removeMember() {
+        StringBuilder result = new StringBuilder();
         clientStorage.removeClient(new Client(clientId, clientIp, clientPort));
         System.out.println(clientId + " has been removed.");
+        result
+                .append("REMOVEMEMBERRESPONSE")
+                .append("\n")
+                .append(clientId)
+                .append("\n")
+                .append(clientId)
+                .append(" has been removed.")
+                .append("\n");
+
+        response = result.toString();
     }
 
     private void sendAllFilesNames() {
@@ -150,4 +184,34 @@ public class ServerManagerRunnable implements Runnable{
 
     }
 
+    private void removeOldFiles() {
+
+    }
+
+    /*
+        closes current connection
+     */
+    private void closeConnection() {
+        if (!clientSocket.isConnected()) {
+            try {
+                clientSocket.close();
+                System.out.println("Connection closed.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    /**
+     * sends the respond to a request
+     */
+    private void sendResponse() {
+        try {
+            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+            dataOutputStream.writeUTF(response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
