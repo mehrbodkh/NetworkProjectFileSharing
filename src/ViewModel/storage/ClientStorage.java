@@ -75,6 +75,47 @@ public class ClientStorage {
     }
 
     /**
+     * adds new files to the client
+     * @param clientId client
+     * @param newFiles files
+     * @return true if added else false
+     */
+    public boolean addSharedFiles(String clientId, ArrayList<String> newFiles) {
+        if (clients != null && !clients.isEmpty()) {
+            for (Client c : clients) {
+                if (c.getId().equals(clientId)) {
+                    for (String s : newFiles) {
+                        c.addFileName(s);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * adds new files to the client
+     * @param clientId client
+     * @param oldFiles files
+     * @return true if removed else false
+     */
+    public boolean removeShareFiles(String clientId, ArrayList<String> oldFiles) {
+        if (clients != null && !clients.isEmpty()) {
+            for (Client c : clients) {
+                if (c.getId().equals(clientId)) {
+                    for (String s : oldFiles) {
+                        c.removeFileName(s);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * first checks whether the client exists or not
      * if exists, updates the clients
      * mainly for updating ip, port and shared files

@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ServerManagerRunnable implements Runnable{
     //
@@ -143,16 +144,27 @@ public class ServerManagerRunnable implements Runnable{
                     .append("\n");
         } else {
             System.out.println(clientId + " cannot be added. Already exists.");
+            updateClient();
             result
                     .append("ADDMEMBERRESPONSE")
                     .append("\n")
                     .append(clientId)
                     .append("\n")
                     .append(clientId)
-                    .append(" cannot be added. Already exists.")
+                    .append(" has been updated.")
                     .append("\n");
         }
         response = result.toString();
+    }
+
+
+    /**
+     * assigns new ip and port for new connections of old clients
+     */
+    private void updateClient() {
+        if (clientStorage != null) {
+            clientStorage.updateClient(new Client(clientId, clientIp, clientPort));
+        }
     }
 
     /**
@@ -222,16 +234,92 @@ public class ServerManagerRunnable implements Runnable{
         response = result.toString();
     }
 
+    /**
+     * add new shared files to the current client
+     */
     private void addNewFiles() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<String> newFiles = new ArrayList<>();
 
+        if (clientRequest.length != 0) {
+            for (int i = 2; i < clientRequest.length; i++) {
+                newFiles.add(clientRequest[i]);
+            }
+
+            if (clientStorage.addSharedFiles(clientId, newFiles)) {
+                result
+                        .append("ADDNEWFILESRESPONSE")
+                        .append("\n")
+                        .append(clientId)
+                        .append("\n")
+                        .append("Files have been added.")
+                        .append("\n");
+            } else {
+                result
+                        .append("ADDNEWFILESRESPONSE")
+                        .append("\n")
+                        .append(clientId)
+                        .append("\n")
+                        .append("Files haven't been added.")
+                        .append("\n");
+            }
+        } else {
+            result
+                    .append("ADDNEWFILESRESPONSE")
+                    .append("\n")
+                    .append(clientId)
+                    .append("\n")
+                    .append("Files haven't been added.")
+                    .append("\n");
+        }
+
+        response = result.toString();
     }
 
+    /**
+     * removes files
+     */
     private void removeOldFiles() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<String> oldFiles = new ArrayList<>();
 
+        if (clientRequest.length != 0) {
+            for (int i = 2; i < clientRequest.length; i++) {
+                oldFiles.add(clientRequest[i]);
+            }
+
+            if (clientStorage.removeShareFiles(clientId, oldFiles)) {
+                result
+                        .append("REMOVEFILESRESPONSE")
+                        .append("\n")
+                        .append(clientId)
+                        .append("\n")
+                        .append("Files have been removed.")
+                        .append("\n");
+            } else {
+                result
+                        .append("REMOVEFILESRESPONSE")
+                        .append("\n")
+                        .append(clientId)
+                        .append("\n")
+                        .append("Files haven't been removed.")
+                        .append("\n");
+            }
+        } else {
+            result
+                    .append("REMOVEFILESRESPONSE")
+                    .append("\n")
+                    .append(clientId)
+                    .append("\n")
+                    .append("Files haven't been removed.")
+                    .append("\n");
+        }
+
+        response = result.toString();
     }
 
-    /*
-        closes current connection
+    /**
+     * closes current connection
      */
     private void closeConnection() {
         if (!clientSocket.isConnected()) {
