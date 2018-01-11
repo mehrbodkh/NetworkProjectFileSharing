@@ -133,7 +133,8 @@ public class ServerManagerRunnable implements Runnable{
         StringBuilder result = new StringBuilder();
         if (clientStorage.addClient(new Client(clientId, clientIp, clientPort))) {
             System.out.println(clientId + " has been added.");
-            result.append("ADDMEMBERRESPONSE")
+            result
+                    .append("ADDMEMBERRESPONSE")
                     .append("\n")
                     .append(clientId)
                     .append("\n")
@@ -142,7 +143,8 @@ public class ServerManagerRunnable implements Runnable{
                     .append("\n");
         } else {
             System.out.println(clientId + " cannot be added. Already exists.");
-            result.append("ADDMEMBERRESPONSE")
+            result
+                    .append("ADDMEMBERRESPONSE")
                     .append("\n")
                     .append(clientId)
                     .append("\n")
@@ -172,12 +174,52 @@ public class ServerManagerRunnable implements Runnable{
         response = result.toString();
     }
 
+    /**
+     * sends all shared files
+     */
     private void sendAllFilesNames() {
+        StringBuilder result = new StringBuilder();
+        String files = "";
+        if (clientStorage != null) {
+            files = clientStorage.toString();
+        }
+        result
+                .append("ALLFIELSRESPONSE")
+                .append("\n")
+                .append(clientId)
+                .append("\n")
+                .append(files);
 
+        response = result.toString();
     }
 
+    /**
+     * sends owner of the file
+     */
     private void sendFileOwner() {
+        String file = "";
+        StringBuilder result = new StringBuilder();
+        Client fileOwner = null;
 
+        if (clientRequest.length != 0) {
+            file = clientRequest[2];
+        }
+
+        if (clientStorage != null) {
+            fileOwner = clientStorage.getFileOwnerClient(file);
+        }
+
+        result
+                .append("FILEOWNERRESPONSE")
+                .append("\n")
+                .append(clientId)
+                .append("\n")
+                .append(fileOwner != null ? fileOwner.getIp() : null)
+                .append("\n")
+                .append(fileOwner != null ? fileOwner.getId() : null)
+                .append("\n");
+
+        response = result.toString();
     }
 
     private void addNewFiles() {
