@@ -142,15 +142,16 @@ public class ClientStorage {
      * @return Client which has the file
      */
     @Nullable
-    public Client getFileOwnerClient(String fileName) {
+    public ArrayList<Client> getFileOwnerClient(String fileName) {
+        ArrayList<Client> result = new ArrayList<>();
         if (clients != null && !clients.isEmpty()) {
             for (Client c : clients) {
                 if (c.hasFile(fileName)) {
-                    return c;
+                    result.add(c);
                 }
             }
         }
-        return null;
+        return result;
     }
 
     /**

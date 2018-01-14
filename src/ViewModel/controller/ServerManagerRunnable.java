@@ -211,26 +211,31 @@ public class ServerManagerRunnable implements Runnable{
     private void sendFileOwner() {
         String file = "";
         StringBuilder result = new StringBuilder();
-        Client fileOwner = null;
+        ArrayList<Client> fileOwners = null;
 
         if (clientRequest.length != 0) {
             file = clientRequest[2];
         }
 
         if (clientStorage != null) {
-            fileOwner = clientStorage.getFileOwnerClient(file);
+            fileOwners = clientStorage.getFileOwnerClient(file);
         }
 
         result
                 .append("FILEOWNERRESPONSE")
                 .append("\n")
                 .append(clientId)
-                .append("\n")
-                .append(fileOwner != null ? fileOwner.getIp() : null)
-                .append("\n")
-                .append(fileOwner != null ? fileOwner.getId() : null)
                 .append("\n");
 
+        if (fileOwners != null) {
+            for (Client c : fileOwners) {
+                result
+                        .append(c.getIp())
+                        .append("\n")
+                        .append(c.getPort())
+                        .append("\n");
+            }
+        }
         response = result.toString();
     }
 
