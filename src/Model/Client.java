@@ -19,6 +19,11 @@ public class Client {
     //
     private ArrayList<String> fileNames;
 
+    //
+    // client time to live
+    //
+    private int ttl;
+
     /**
      * initializes variables
      */
@@ -27,6 +32,7 @@ public class Client {
         ip = "";
         port = 0;
         fileNames = new ArrayList<>();
+        ttl = 60;
     }
 
 
@@ -42,6 +48,8 @@ public class Client {
         this.port = port;
 
         this.fileNames = new ArrayList<>();
+
+        this.ttl = 60;
     }
 
     /**
@@ -57,6 +65,31 @@ public class Client {
      */
     public String getId() {
         return this.id;
+    }
+
+    /**
+     * sets the ttl of the current user
+     * if a user hasn't been around for more than 60 seconds, it should be deleted from storage
+     * @param ttl int time to live for the current client
+     */
+    public void setTtl(int ttl) {
+        this.ttl = ttl;
+    }
+
+    /**
+     * gets the current user's ttl
+     * @return int time to live
+     */
+    public int getTtl() {
+        return this.ttl;
+    }
+
+    /**
+     * reduces one point of current user's ttl
+     * it should be called every 60 seconds
+     */
+    public void decreseTtl() {
+        ttl--;
     }
 
     /**
@@ -140,10 +173,6 @@ public class Client {
      * @return boolean
      */
     public boolean hasFile(String fileName) {
-        if (fileNames == null) {
-            return false;
-        }
-
-        return fileNames.contains(fileName);
+        return fileNames != null && fileNames.contains(fileName);
     }
 }
