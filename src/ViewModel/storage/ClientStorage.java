@@ -5,6 +5,8 @@ import Model.Client;
 import com.sun.istack.internal.Nullable;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * created by Mehrbod 1.10.2018
@@ -34,6 +36,7 @@ public class ClientStorage {
         clients = new ArrayList<>();
         singletonInstance = new ClientStorage();
         loadClients();
+        killClientWithTtl();
     }
 
     /**
@@ -233,6 +236,31 @@ public class ClientStorage {
         }
 
         // TODO: 1/10/2018 Mehrbod completing writing to the jsonStorageName and make it async
+    }
+
+    /**
+     * checks for client connection every second
+     * kills not wanted clients if they are absent for 60 seconds
+     */
+    private void killClientWithTtl() {
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                synchronized (ClientStorage.class) {
+                    ArrayList<Client> removeList = new ArrayList<>();
+                    for (Client c : clients) {
+                        c.decreseTtl();
+
+                        if (c.getTtl() == 0) {
+                            removeList.add(c);
+                        }
+                    }
+                    clients.removeAll(removeList);
+                }
+            }
+        }, 0, 1000);
     }
 
     /**
