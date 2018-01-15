@@ -51,11 +51,13 @@ public class ClientStorage {
      * @return whether client add or not
      */
     public boolean addClient(Client newClient) {
-        if (clients != null && !isClientExists(newClient.getId())) {
-            clients.add(newClient);
-            return true;
+        synchronized (ClientStorage.class) {
+            if (clients != null && !isClientExists(newClient.getId())) {
+                clients.add(newClient);
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -64,11 +66,13 @@ public class ClientStorage {
      * @param oldClient the client which has to be removed from the system
      */
     public void removeClient(Client oldClient) {
-        if (clients != null && !clients.isEmpty()) {
-            for (Client c : clients) {
-                if (c.getId().equals(oldClient.getId())) {
-                    clients.remove(c);
-                    break;
+        synchronized (ClientStorage.class) {
+            if (clients != null && !clients.isEmpty()) {
+                for (Client c : clients) {
+                    if (c.getId().equals(oldClient.getId())) {
+                        clients.remove(c);
+                        break;
+                    }
                 }
             }
         }
@@ -81,17 +85,19 @@ public class ClientStorage {
      * @return true if added else false
      */
     public boolean addSharedFiles(String clientId, ArrayList<String> newFiles) {
-        if (clients != null && !clients.isEmpty()) {
-            for (Client c : clients) {
-                if (c.getId().equals(clientId)) {
-                    for (String s : newFiles) {
-                        c.addFileName(s);
+        synchronized (ClientStorage.class) {
+            if (clients != null && !clients.isEmpty()) {
+                for (Client c : clients) {
+                    if (c.getId().equals(clientId)) {
+                        for (String s : newFiles) {
+                            c.addFileName(s);
+                        }
+                        return true;
                     }
-                    return true;
                 }
             }
+            return false;
         }
-        return false;
     }
 
 
@@ -102,17 +108,19 @@ public class ClientStorage {
      * @return true if removed else false
      */
     public boolean removeShareFiles(String clientId, ArrayList<String> oldFiles) {
-        if (clients != null && !clients.isEmpty()) {
-            for (Client c : clients) {
-                if (c.getId().equals(clientId)) {
-                    for (String s : oldFiles) {
-                        c.removeFileName(s);
+        synchronized (ClientStorage.class) {
+            if (clients != null && !clients.isEmpty()) {
+                for (Client c : clients) {
+                    if (c.getId().equals(clientId)) {
+                        for (String s : oldFiles) {
+                            c.removeFileName(s);
+                        }
+                        return true;
                     }
-                    return true;
                 }
             }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -123,17 +131,19 @@ public class ClientStorage {
      * @return whether the update occurred or not
      */
     public boolean updateClient(Client updatedClient) {
-        if (clients != null && !clients.isEmpty()) {
-            for (Client c : clients) {
-                if (c.getId().equals(updatedClient.getId())) {
-                    c.setId(updatedClient.getIp());
-                    c.setPort(updatedClient.getPort());
-                    c.setFileNames(updatedClient.getFileNames());
-                    return true;
+        synchronized (ClientStorage.class) {
+            if (clients != null && !clients.isEmpty()) {
+                for (Client c : clients) {
+                    if (c.getId().equals(updatedClient.getId())) {
+                        c.setId(updatedClient.getIp());
+                        c.setPort(updatedClient.getPort());
+                        c.setFileNames(updatedClient.getFileNames());
+                        return true;
+                    }
                 }
             }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -143,15 +153,17 @@ public class ClientStorage {
      */
     @Nullable
     public ArrayList<Client> getFileOwnerClient(String fileName) {
-        ArrayList<Client> result = new ArrayList<>();
-        if (clients != null && !clients.isEmpty()) {
-            for (Client c : clients) {
-                if (c.hasFile(fileName)) {
-                    result.add(c);
+        synchronized (ClientStorage.class) {
+            ArrayList<Client> result = new ArrayList<>();
+            if (clients != null && !clients.isEmpty()) {
+                for (Client c : clients) {
+                    if (c.hasFile(fileName)) {
+                        result.add(c);
+                    }
                 }
             }
+            return result;
         }
-        return result;
     }
 
     /**
@@ -160,14 +172,16 @@ public class ClientStorage {
      * @return whether it exists or not
      */
     private boolean isClientExists(String id) {
-        if (clients != null && !clients.isEmpty()) {
-            for (Client c : clients) {
-                if (c.getId().equals(id)) {
-                    return true;
+        synchronized (ClientStorage.class) {
+            if (clients != null && !clients.isEmpty()) {
+                for (Client c : clients) {
+                    if (c.getId().equals(id)) {
+                        return true;
+                    }
                 }
             }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -199,20 +213,22 @@ public class ClientStorage {
      */
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
+        synchronized (ClientStorage.class) {
+            StringBuilder result = new StringBuilder();
 
-        if (clients != null && !clients.isEmpty()) {
-            for (Client c : clients) {
-                ArrayList<String> filesList = c.getFileNames();
+            if (clients != null && !clients.isEmpty()) {
+                for (Client c : clients) {
+                    ArrayList<String> filesList = c.getFileNames();
 
-                if (filesList != null) {
-                    for (String aFilesList : filesList) {
-                        result.append(aFilesList).append("\n");
+                    if (filesList != null) {
+                        for (String aFilesList : filesList) {
+                            result.append(aFilesList).append("\n");
+                        }
                     }
                 }
             }
-        }
 
-        return result.toString();
+            return result.toString();
+        }
     }
 }
