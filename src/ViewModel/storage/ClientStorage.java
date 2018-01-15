@@ -38,6 +38,7 @@ public class ClientStorage {
 
     /**
      * method for using this class
+     *
      * @return ClientStorage instance
      */
     public static ClientStorage getClientStorage() {
@@ -47,6 +48,7 @@ public class ClientStorage {
     /**
      * checks if the client exists or not
      * then if the client was new, adds the client
+     *
      * @param newClient new client to the system
      * @return whether client add or not
      */
@@ -63,6 +65,7 @@ public class ClientStorage {
     /**
      * first checks whether the client exists or not
      * then if the client exists, removes it
+     *
      * @param oldClient the client which has to be removed from the system
      */
     public void removeClient(Client oldClient) {
@@ -80,6 +83,7 @@ public class ClientStorage {
 
     /**
      * adds new files to the client
+     *
      * @param clientId client
      * @param newFiles files
      * @return true if added else false
@@ -100,9 +104,30 @@ public class ClientStorage {
         }
     }
 
+    /**
+     * adds new file to the client
+     *
+     * @param clientId client
+     * @param fileName one file's name
+     * @return true if added else false
+     */
+    public boolean addSharedFile(String clientId, String fileName) {
+        synchronized (ClientStorage.class) {
+            if (clients != null && !clients.isEmpty()) {
+                for (Client c : clients) {
+                    if (c.getId().equals(clientId)) {
+                        c.addFileName(fileName);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
 
     /**
      * adds new files to the client
+     *
      * @param clientId client
      * @param oldFiles files
      * @return true if removed else false
@@ -127,6 +152,7 @@ public class ClientStorage {
      * first checks whether the client exists or not
      * if exists, updates the clients
      * mainly for updating ip, port and shared files
+     *
      * @param updatedClient existing client which has to be updated
      * @return whether the update occurred or not
      */
@@ -148,6 +174,7 @@ public class ClientStorage {
 
     /**
      * gets the owner of wanted file to start getting it
+     *
      * @param fileName wanted file name
      * @return Client which has the file
      */
@@ -168,6 +195,7 @@ public class ClientStorage {
 
     /**
      * checks whether the client exists or not
+     *
      * @param id client to be checked
      * @return whether it exists or not
      */
@@ -209,6 +237,7 @@ public class ClientStorage {
 
     /**
      * shows all files name in separate lines
+     *
      * @return String
      */
     @Override
