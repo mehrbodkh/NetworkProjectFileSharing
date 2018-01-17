@@ -123,6 +123,13 @@ public class ServerManagerRunnable implements Runnable{
                 removeOldFiles();
                 break;
             default:
+                StringBuilder result = new StringBuilder();
+                result
+                        .append("BADREQUEST")
+                        .append("\n")
+                        .append(clientId)
+                        .append("\n");
+                response = result.toString();
         }
         sendResponse();
     }
