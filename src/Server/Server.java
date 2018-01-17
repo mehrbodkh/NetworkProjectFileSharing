@@ -81,7 +81,9 @@ public class Server {
                 executorService = Executors.newCachedThreadPool();
             }
         }
-        serverSocket.close();
+        if (serverSocket != null) {
+            serverSocket.close();
+        }
     }
 
     /**
