@@ -81,4 +81,16 @@ public class Server {
             }
         }
     }
+
+    /**
+     * for singleton pattern
+     * @return serverInstance
+     */
+    public static Server getServerInstance() {
+        if (serverInstance == null) {
+            serverInstance = new Server();
+        }
+
+        return serverInstance;
+    }
 }
