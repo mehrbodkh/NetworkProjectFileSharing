@@ -34,7 +34,6 @@ public class ClientStorage {
      */
     private ClientStorage() {
         clients = new ArrayList<>();
-        singletonInstance = new ClientStorage();
         loadClients();
         killClientWithTtl();
     }
@@ -45,6 +44,9 @@ public class ClientStorage {
      * @return ClientStorage instance
      */
     public static ClientStorage getClientStorage() {
+        if (singletonInstance == null) {
+            singletonInstance = new ClientStorage();
+        }
         return singletonInstance;
     }
 
@@ -255,12 +257,28 @@ public class ClientStorage {
 
                         if (c.getTtl() == 0) {
                             removeList.add(c);
+                            System.out.println(c.getId() + " has been removed.");
                         }
+
                     }
                     clients.removeAll(removeList);
                 }
             }
         }, 0, 1000);
+    }
+
+    /**
+     * resets ttl
+     * @param clientId id
+     */
+    public void resetTtl(String clientId) {
+        if (clients != null) {
+            for (Client c : clients) {
+                if (c.getId().equals(clientId)) {
+                    c.setTtl(60);
+                }
+            }
+        }
     }
 
     /**

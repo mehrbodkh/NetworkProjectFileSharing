@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class ServerManagerRunnable implements Runnable{
+public class ServerManagerRunnable implements Runnable {
     //
     // client socket
     //
@@ -65,6 +65,7 @@ public class ServerManagerRunnable implements Runnable{
 
     /**
      * initializes the clientRequest String array
+     *
      * @throws IOException for DataInputStream
      */
     private void parseRequest() throws IOException {
@@ -78,19 +79,21 @@ public class ServerManagerRunnable implements Runnable{
      * initializes the client's id
      */
     private void determineClientId() {
-        if (clientRequest.length != 0) {
+        if (clientRequest.length != 0 && clientRequest.length >= 2) {
             clientId = clientRequest[1];
         }
     }
 
     /**
      * determines the request
+     *
      * @return ADDME for adding member
-     *         REMOVEME for removing
-     *         REQUESTFILEOWNER for requesting one file owner
-     *         REQUESTALLFILES for getting all shared files names list
-     *         ADDFILES for adding new files to an already existed client
-     *         REMOVEFILES for removing files
+     * REMOVEME for removing
+     * REQUESTFILEOWNER for requesting one file owner
+     * REQUESTALLFILES for getting all shared files names list
+     * ADDFILES for adding new files to an already existed client
+     * REMOVEFILES for removing files
+     * IMHERE to reset the ttl
      */
     private String determineRequest() {
         if (clientRequest.length != 0) {
@@ -116,11 +119,14 @@ public class ServerManagerRunnable implements Runnable{
             case "REQUESTALLFILES":
                 sendAllFilesNames();
                 break;
-            case "ADDFIELS":
+            case "ADDFILES":
                 addNewFiles();
                 break;
             case "REMOVEFILES":
                 removeOldFiles();
+                break;
+            case "IMHERE":
+                resetTtl();
                 break;
             default:
                 StringBuilder result = new StringBuilder();
@@ -135,10 +141,23 @@ public class ServerManagerRunnable implements Runnable{
     }
 
     /**
+     * resets the ttl of the client
+     */
+    private void resetTtl() {
+        if (clientStorage != null) {
+            clientStorage.resetTtl(clientId);
+        }
+        response = "YOUREHERE\n" + clientId + "\n";
+    }
+
+    /**
      * adds current client
      */
     private void addMember() {
         StringBuilder result = new StringBuilder();
+        if (clientStorage == null) {
+            clientStorage = ClientStorage.getClientStorage();
+        }
         if (clientStorage.addClient(new Client(clientId, clientIp, clientPort))) {
             System.out.println(clientId + " has been added.");
             result
