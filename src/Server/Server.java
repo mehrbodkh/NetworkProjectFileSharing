@@ -73,6 +73,7 @@ public class Server {
      */
     private void listenForConnections() throws IOException {
         while (!finished) {
+            System.out.println("Waiting for connections...");
             if (serverSocket != null && executorService != null) {
                 Socket clientSocket = serverSocket.accept();
                 executorService.execute(new ServerManagerRunnable(clientSocket));
@@ -80,6 +81,7 @@ public class Server {
                 executorService = Executors.newCachedThreadPool();
             }
         }
+        serverSocket.close();
     }
 
     /**
@@ -92,5 +94,14 @@ public class Server {
         }
 
         return serverInstance;
+    }
+
+    /**
+     * stops the server
+     */
+    public void stopServer() {
+        if (!finished) {
+            finished = false;
+        }
     }
 }
