@@ -370,7 +370,11 @@ public class ServerManagerRunnable implements Runnable {
     private void sendResponse() {
         try {
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
-            dataOutputStream.writeUTF(response);
+            if (response != null) {
+                dataOutputStream.writeUTF(response);
+            } else {
+                dataOutputStream.writeUTF("NULL");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
