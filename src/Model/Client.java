@@ -132,7 +132,9 @@ public class Client {
             return;
         }
 
-        fileNames.add(fileName);
+        if (!fileNames.contains(fileName)) {
+            fileNames.add(fileName);
+        }
     }
 
 
