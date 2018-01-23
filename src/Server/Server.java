@@ -1,6 +1,7 @@
 package Server;
 
 import ViewModel.controller.ServerManagerRunnable;
+import ViewModel.storage.ClientStorage;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -74,6 +75,7 @@ public class Server {
     private void listenForConnections() throws IOException {
         while (!finished) {
             System.out.println("Waiting for connections...");
+            System.out.println(ClientStorage.getClientStorage().toString());
             if (serverSocket != null && executorService != null) {
                 Socket clientSocket = serverSocket.accept();
                 executorService.execute(new ServerManagerRunnable(clientSocket));

@@ -69,7 +69,7 @@ public class ServerManagerRunnable implements Runnable {
      * @throws IOException for DataInputStream
      */
     private void parseRequest() throws IOException {
-        if (clientSocket != null) {
+        if (clientSocket != null && clientSocket.isConnected()) {
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             clientRequest = dataInputStream.readUTF().split("\n");
         }
@@ -241,6 +241,7 @@ public class ServerManagerRunnable implements Runnable {
 
         if (clientRequest.length != 0) {
             file = clientRequest[2];
+            System.out.println("File " + file + " is wanted.");
         }
 
         if (clientStorage != null) {
@@ -369,11 +370,13 @@ public class ServerManagerRunnable implements Runnable {
      */
     private void sendResponse() {
         try {
-            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
-            if (response != null) {
-                dataOutputStream.writeUTF(response);
-            } else {
-                dataOutputStream.writeUTF("NULL");
+            if (clientSocket.isConnected()) {
+                dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+                if (response != null) {
+                    dataOutputStream.writeUTF(response);
+                } else {
+                    dataOutputStream.writeUTF("NULL");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
